@@ -6,7 +6,7 @@ using namespace std;
 typedef struct Item {
     Item* next = nullptr;
     char data;
-} Item;
+}Item;
 
 typedef Item* List;
 
@@ -15,34 +15,34 @@ int main() {
     getline(cin, line);
     int len = line.length();
 
-    List stack = nullptr;
+    List p1 = nullptr;
 
-    for (int i = 0; i < len; i++) {
-        if (line[i] == '(' or line[i] == '[' or line[i] == '{') {
-            List newItem = new Item;
-            newItem->data = line[i];
-            newItem->next = stack;
-            stack = newItem;
+    for (char sym : line) {
+        if (sym == '(' or sym == '[' or sym == '{') {
+            List p = new Item;
+            p->data = sym;
+            p->next = p1;
+            p1 = p;
         }
-        else if (line[i] == ')' or line[i] == ']' or line[i] == '}') {
-            char openBracket = (line[i] == ')' ? '(' : (line[i] == ']' ? '[' : '{'));
-            if (stack == nullptr) {
+        else {
+            if (p1 == nullptr) {
                 cout << "no";
                 return 0;
             }
-            List topItem = stack;
-            char value = topItem->data;
-            stack = stack->next;
-            delete topItem;
-            char popped = value;
-            if (popped != openBracket) {
+            char symbol = (sym == ')' ? '(' : (sym == ']' ? '[' : '{'));
+            List p = new Item;
+            p = p1;
+            char val = p->data;
+            p1 = p1->next;
+            delete p;
+            if (symbol != val) {
                 cout << "no";
                 return 0;
             }
         }
     }
 
-    if (stack == nullptr) {
+    if (p1 == nullptr) {
         cout << "yes";
     }
     else {
@@ -51,3 +51,4 @@ int main() {
 
     return 0;
 }
+
