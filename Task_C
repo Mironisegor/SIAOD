@@ -1,0 +1,53 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+typedef struct Item {
+    Item* next = nullptr;
+    char data;
+}Item;
+
+typedef Item* List;
+
+int main() {
+    string line;
+    getline(cin, line);
+    int len = line.length();
+
+    List p1 = nullptr;
+
+    for (char sym : line) {
+        if (sym == '(' or sym == '[' or sym == '{') {
+            List p = new Item;
+            p->data = sym;
+            p->next = p1;
+            p1 = p;
+        }
+        else {
+            if (p1 == nullptr) {
+                cout << "no";
+                return 0;
+            }
+            char symbol = (sym == ')' ? '(' : (sym == ']' ? '[' : '{'));
+            List p = new Item;
+            p = p1;
+            char val = p->data;
+            p1 = p1->next;
+            delete p;
+            if (symbol != val) {
+                cout << "no";
+                return 0;
+            }
+        }
+    }
+
+    if (p1 == nullptr) {
+        cout << "yes";
+    }
+    else {
+        cout << "no";
+    }
+
+    return 0;
+}
