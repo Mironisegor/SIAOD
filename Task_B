@@ -1,0 +1,79 @@
+#include <iostream>
+
+using namespace std;
+#define SIZE 10000
+
+typedef struct Item {
+	Item* next = nullptr;
+	Item* prev = nullptr;
+	int side;
+	int num;
+}Item;
+
+typedef Item* List;
+
+int main(void) {
+	int arr[SIZE];
+	int n, k = 0;
+	cin >> n;
+
+	List p = nullptr;
+	List p1 = nullptr;
+	List Head1 = nullptr;
+	List Tail1 = nullptr;
+
+	for (int i = 0; i < n; i++) {
+		int temp;
+		cin >> temp;
+		if (!Head1) {
+			p1 = new Item;
+			p1->side = temp;
+			cin >> p1->num;
+			Head1 = p1;
+			Tail1 = p1;
+		}
+		else if (temp == 1) {
+			p1 = new Item;
+			p1->side = temp;
+			cin >> p1->num;
+			p1->prev = nullptr;
+			p1->next = Head1;
+			Head1->prev = p1;
+			Head1 = p1;
+		}
+		else if (temp == 2) {
+			p1 = new Item;
+			p1->side = temp;
+			cin >> p1->num;
+			p1->prev = Tail1;
+			Tail1->next = p1;
+			Tail1 = p1;
+			Tail1->next = nullptr;
+		}
+		else if (temp == 3) {
+			p = Head1;
+			arr[k] = p->num;
+			k++;
+			Head1 = Head1->next;
+			delete p;
+		}
+		else if (temp == 4) {
+			p = Tail1;
+			arr[k] = p->num;
+			k++;
+			Tail1 = Tail1->prev;
+			delete p;
+		}
+	}
+
+	for (int i = 0; i < k; i++) {
+		if (i + 1 != k) {
+			cout << arr[i] << ' ';
+		}
+		else {
+			cout << arr[i];
+		}
+	}
+
+	return 0;
+}
