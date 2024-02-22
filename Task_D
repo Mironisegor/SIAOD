@@ -1,0 +1,143 @@
+//Постфиксная запись
+#include <iostream>
+
+#include <string>
+
+
+
+typedef struct Item {
+
+    Item* next = nullptr;
+
+    Item* prev = nullptr;
+
+    int data;
+
+} Item;
+
+
+
+typedef Item* List;
+
+
+
+using namespace std;
+
+
+
+int main() {
+
+    string line;
+
+    getline(cin, line);
+
+
+
+    List head = nullptr;
+
+    List tail = nullptr;
+
+
+
+    for (char c : line) {
+
+        if (isdigit(c)) {
+
+            List p = new Item;
+
+            p->data = c - '0';
+
+            if (!head) {
+
+                head = p;
+
+                tail = p;
+
+            }
+
+            else {
+
+                p->prev = tail;
+
+                tail->next = p;
+
+                tail = p;
+
+            }
+
+        }
+
+        else if (c == ' ') {
+
+            continue;
+
+        }
+
+        else {
+
+            List p = tail;
+
+            int num2 = tail->data;
+
+            tail = tail->prev;
+
+            delete p;
+
+
+
+            p = tail;
+
+            int num1 = tail->data;
+
+            tail = tail->prev;
+
+            delete p;
+
+
+
+            List new_p = new Item;
+
+            switch (c) {
+
+            case '+':
+
+                new_p->data = num1 + num2;
+
+                break;
+
+            case '-':
+
+                new_p->data = num1 - num2;
+
+                break;
+
+            case '*':
+
+                new_p->data = num1 * num2;
+
+                break;
+
+            }
+
+            new_p->prev = tail;
+
+            if (tail) {
+
+                tail->next = new_p;
+
+            }
+
+            tail = new_p;
+
+        }
+
+    }
+
+    cout << tail->data;
+
+
+
+    return 0;
+
+}
+
