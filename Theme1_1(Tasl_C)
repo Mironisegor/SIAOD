@@ -1,3 +1,4 @@
+//Правильная скобочная последовательность
 #include <iostream>
 #include <string>
 
