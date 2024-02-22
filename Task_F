@@ -1,0 +1,100 @@
+//Гоблины и шаманы
+
+#include <iostream>
+
+using namespace std;
+
+typedef struct Item {
+	Item* next = nullptr;
+	Item* prev = nullptr;
+	int data;
+}Item;
+
+typedef Item* List;
+
+
+int main() {
+    int n, k=0;
+    cin >> n;
+
+    List head = nullptr;
+    List tail = nullptr;
+    List center = nullptr;
+    List ptr = nullptr;
+
+    for (int i = 0; i < n; i++) {
+        char sym;
+        cin >> sym;
+
+        switch (sym) {
+        case '+':
+            if (!head) {
+                head = new Item;
+                cin >> head->data;
+                tail = head;
+                center = head;
+                k++;
+            }
+            else {
+                ptr = new Item;
+                cin >> ptr->data;
+                ptr->prev = tail;
+                tail->next = ptr;
+                tail = ptr;
+                k++;
+                if (k%2 and k!=2) {
+                    center = center->next;
+                }
+            }
+            break;
+        case '*':
+            if (!head) {
+                head = new Item;
+                cin >> head->data;
+                tail = head;
+                center = head;
+                k++;
+            }
+            else if (k == 1) {
+                ptr = new Item;
+                cin >> ptr->data;
+                head->next = ptr;
+                ptr->prev = head;
+                tail = ptr;
+                k++;
+            }
+            else {
+                ptr = new Item;
+                cin >> ptr->data;
+                ptr->next = center->next;
+                ptr->next->prev = ptr;
+                center->next = ptr;
+                ptr->prev = center;
+                k++;
+                if (k % 2) {
+                    center = center->next;
+                }
+            }
+            break;
+        case '-':
+            if (k % 2) {
+                ptr = head;
+                cout << head->data << endl;
+                head = head->next;
+                delete ptr;
+                k--;
+            }
+            else {
+                center = center->next;
+                ptr = head;
+                cout << head->data << endl;
+                head = head->next;
+                delete ptr;
+                k--;
+            }
+            break;
+        }
+    }
+
+	return 0;
+}
