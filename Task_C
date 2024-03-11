@@ -1,0 +1,45 @@
+//Алфавит
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include <utility>
+
+using namespace std;
+
+bool comp(pair<int, char> para1, pair<int, char> para2) {
+    return (para1.second < para2.second);
+}
+
+int main() {
+    string line;
+    getline(cin, line);
+
+    vector <pair <int, char>> kids;
+    vector <int> ansarr;
+
+    for (int i = 0; i < 26; i++) {
+        kids.push_back(make_pair(i + 1, line[i]));
+    }
+
+    sort(kids.begin(), kids.end(), comp);
+    char sym = 'A';
+
+    for (int i = 0; i < 26; i++) {
+        if (kids[i].second - '0' >= sym-'0') {
+            ansarr.push_back(kids[i].first);
+            sym += 1;
+        }
+        else {
+            cout << "NO" << endl;
+            return 0;
+        }
+    }
+    cout << "YES"<< endl;
+    for (int i = 0; i < 26; i++) {
+        cout << ansarr[i] << ' ';
+    }
+    return 0;
+
+}
