@@ -1,0 +1,35 @@
+//Колокол
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+
+    int k1 = 0, k2 = n - 1;
+    vector <int> inarr(n), arr(n);
+
+    for (int i = 0; i < n; i++) {
+        cin >> inarr[i];
+    }
+    sort(inarr.begin(), inarr.end());
+
+    for (int i = 0; i < n; i++) {
+        if (i & 1) {
+            arr[k2] = inarr[i];
+            k2--;
+        }
+        else {
+            arr[k1] = inarr[i];
+            k1++;
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        cout << arr[i] << ' ';
+    }
+}
