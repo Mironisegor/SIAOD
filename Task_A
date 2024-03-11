@@ -1,0 +1,38 @@
+//Буквы, которых нет
+
+#include <iostream>
+#include <set>
+#include <cstring>
+#include <string>
+#include <map>
+
+using namespace std;
+
+int main() {
+	set <char> SA, SB, SC;
+	string s1, s2;
+	getline(cin, s1);
+	getline(cin, s2);
+	for (char sym: s1) {
+		SA.insert(char(tolower(sym)));
+	}
+	for (char sym : s2) {
+		SB.insert(char(tolower(sym)));
+	}
+	char sym = 'a';
+	while (sym != 'z'+1) {
+		if (!SA.count(sym) and !SB.count(sym)) {
+			SC.insert(char(toupper(sym)));
+		}
+		sym++;
+	}
+	if (!SC.size()) {
+		cout << 0;
+	}
+	else {
+		for (char c : SC) {
+			cout << c;
+		}
+	}
+	return 0;
+}
