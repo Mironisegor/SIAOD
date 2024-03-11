@@ -1,0 +1,41 @@
+//Девайсы
+
+#include <iostream>
+#include <map>
+#include <string>
+using namespace std;
+
+int main() {
+    map<string, pair<int, int>> devices;
+    for (int i = 0; i < 6; i++) {
+        string name, device;
+        int price;
+        cin >> name >> device >> price;
+        if ((devices.count(device) == 0) or devices[device].second > price) {
+            devices[device].first++;
+            devices[device].second = price;
+        }
+        else {
+            devices[device].first++;
+        }
+    }
+    string best_device;
+    int max_friends = -1, min_price = 1000000;
+    for (auto  elem : devices) {
+        string device_name = elem.first;
+        pair <int, int> info = elem.second;
+        if (info.first > max_friends) {
+            max_friends = info.first;
+            min_price = info.second;
+            best_device = device_name;
+        }
+        else if (info.first == max_friends) {
+            if (info.second < min_price) {
+                min_price = info.second;
+                best_device = device_name;
+            }
+        }
+    }
+    cout << best_device << endl;
+    return 0;
+}
