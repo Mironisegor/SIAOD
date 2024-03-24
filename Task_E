@@ -1,0 +1,93 @@
+//Второй максимум
+
+#include <iostream>
+#include <vector>
+using namespace std;
+typedef struct Node {
+	int data;
+	Node* left = nullptr;
+	Node* right = nullptr;
+}*Tree;
+//Добавление элемента в дерево
+void TreeInsert(Tree& t, int x) {
+	if (!t) {
+		t = new Node;
+		t->data = x;
+	}
+	else {
+		if (x > t->data) {
+			TreeInsert(t->right, x);
+		}
+		else {
+			if (x < t->data) {
+				TreeInsert(t->left, x);
+			}
+		}
+	}
+	return;
+}
+int firstmax = -1;
+int secondmax = -1;
+
+//Поиск второго максимального элемента
+void FindSecondMax(Tree&t) {
+	if (firstmax == -1) {
+		firstmax = t->data;
+		if (t->left != nullptr and t->right != nullptr) {
+			FindSecondMax(t->left);
+			FindSecondMax(t->right);
+		}
+		else if (t->left == nullptr and t->right != nullptr) {
+			FindSecondMax(t->right);
+		}
+		else if (t->left != nullptr and t->right == nullptr) {
+			FindSecondMax(t->left);
+		}
+	}
+	else {
+		if (t->data > firstmax) {
+			secondmax = firstmax;
+			firstmax = t->data;
+			if (t->left != nullptr and t->right != nullptr) {
+				FindSecondMax(t->left);
+				FindSecondMax(t->right);
+			}
+			else if (t->left == nullptr and t->right != nullptr) {
+				FindSecondMax(t->right);
+			}
+			else if (t->left != nullptr and t->right == nullptr) {
+				FindSecondMax(t->left);
+			}
+		}
+		else if (t->data < firstmax && t->data > secondmax) {
+			secondmax = t->data;
+			if (t->left != nullptr and t->right != nullptr) {
+				FindSecondMax(t->left);
+				FindSecondMax(t->right);
+			}
+			else if (t->left == nullptr and t->right != nullptr) {
+				FindSecondMax(t->right);
+			}
+			else if (t->left != nullptr and t->right == nullptr) {
+				FindSecondMax(t->left);
+			}
+		}
+	}
+	return;
+}
+int main() {
+	Tree t = nullptr;
+	int num;
+	vector <int> arr;
+	cin >> num;
+	while (num != 0) {
+		arr.push_back(num);
+		cin >> num;
+	}
+	for (int i = 0; i < arr.size(); ++i) {
+		TreeInsert(t, arr[i]);
+	}
+	FindSecondMax(t);
+	cout << secondmax << endl;
+	return 0;
+}
