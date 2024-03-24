@@ -1,0 +1,86 @@
+//Тестовое задание
+
+#include <iostream>
+#include <vector>
+#include <map>
+#include <utility>
+#include <string>
+using namespace std;
+
+int main() {
+	//<name, <password, loggedin/loggedout>>
+	map <string, pair<string, int>> users;
+	int n;
+	cin >> n;
+	cin.ignore();
+
+	for (int i = 0; i < n; i++) {
+		string str;
+		string command;
+		string name;
+		string password;
+		int count = 0;
+		getline(cin, str);
+		for (char sym : str) {
+			if (sym != ' ') {
+				switch (count) {
+				case 0:
+					command.push_back(sym);
+					break;
+				case 1:
+					name.push_back(sym);
+					break;
+				case 2:
+					password.push_back(sym);
+					break;
+				}
+			}
+			else {
+				count++;
+			}
+		}
+		if (command == "register") {
+			if (users.count(name) == 0) {
+				users[name] = make_pair(password, 0);
+				cout << "success: new user added" << endl;
+			}
+			else {
+				cout << "fail: user already exists" << endl;
+			}
+		}
+		else if (command == "login") {
+			if (users.count(name) == 0) {
+				cout << "fail: no such user" << endl;
+			}
+			else {
+				if (users[name].first != password) {
+					cout << "fail: incorrect password" << endl;
+				}
+				else {
+					if (users[name].second == 1) {
+						cout << "fail: already logged in" << endl;
+					}
+					else {
+						cout << "success: user logged in" << endl;
+						users[name].second = 1;
+					}
+				}
+			}
+		}
+		else {
+			if (users.count(name) == 0) {
+				cout << "fail: no such user" << endl;
+			}
+			else {
+				if (users[name].second == 0) {
+					cout << "fail: already logged out" << endl;
+				}
+				else {
+					cout << "success: user logged out" << endl;
+					users[name].second = 0;
+				}
+			}
+		}
+	}
+	return 0;
+}
