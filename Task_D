@@ -1,0 +1,64 @@
+//Вывод веток
+
+#include <iostream>
+#include <vector>
+using namespace std;
+set <int> ans;
+typedef struct Node {
+	int data;
+	Node* left = nullptr;
+	Node* right = nullptr;
+}*Tree;
+
+void TreeInsert(Tree& t, int x) {
+	if (!t) {
+		t = new Node;
+		t->data = x;
+	}
+	else {
+		if (x > t->data) {
+			TreeInsert(t->right, x);
+		}
+		else {
+			if (x < t->data) {
+				TreeInsert(t->left, x);
+			}
+		}
+	}
+	return;
+}
+void Find(Tree& t) {
+	if (t->left != nullptr and t->right != nullptr) {
+		Find(t->left);
+		Find(t->right);
+	}
+	else if (t->left != nullptr and t->right == nullptr) {
+		ans.insert(t->data);
+		Find(t->left);
+	}
+	else if (t->left == nullptr and t->right != nullptr) {
+		ans.insert(t->data);
+		Find(t->right);
+	}
+	return;
+}
+int main() {
+	Tree t = nullptr;
+	int num;
+	vector <int> arr;
+	cin >> num;
+	while (num != 0) {
+		arr.push_back(num);
+		cin >> num;
+	}
+	for (int i = 0; i < arr.size(); i++) {
+		TreeInsert(t, arr[i]);
+	}
+	Find(t);
+	auto p = ans.begin();
+	while (p != ans.end()) {
+		cout << *p << endl;
+		p++;
+	}
+	return 0;
+}
