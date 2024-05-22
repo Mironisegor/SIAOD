@@ -1,0 +1,56 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <set>
+#include <fstream>
+#include <windows.h>
+#include "..\DinamicLib\Header.h"
+
+using namespace std;
+
+int main() {
+    HINSTANCE load;
+    setlocale(LC_ALL, "Russian");
+    int flag = 1;
+    vector<Transition> table(522);
+
+    load = LoadLibrary(L"DinamicLib.dll");
+
+    bool(*init)(vector<Transition>&);
+    init = (bool(*)(vector<Transition>&))GetProcAddress(load, "init");
+
+    string(*addsymbols)(string&);
+    addsymbols = (string(*)(string&))GetProcAddress(load, "addsymbols");
+
+    void(*turing)(string&, vector<Transition>&);
+    turing = (void(*)(string&, vector<Transition>&))GetProcAddress(load, "turing");
+
+    set<char> alf = { '0', '1', '2', '3', '4', '5', '6', '7', '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', ' ' };
+    bool(*checkup)(string, set<char>&);
+    checkup = (bool(*)(string, set<char>&))GetProcAddress(load, "checkup");
+
+    void(*setColor)(int);
+    setColor = (void(*)(int))GetProcAddress(load, "setColor");
+
+    while (flag) {
+        string str;
+        cout << "Введите строку: ";
+        cin >> str;
+        bool stop = checkup(str, alf);
+        if (!stop) {
+            str = addsymbols(str);
+            if (!init(table)) {
+                turing(str, table);
+            }
+        }
+        else {
+            cout << "Недопустимые символы в строке. Повторите ввод." << endl;
+        }
+        cout << "Повторить ввод строки? (0 - нет, 1 - да): ";
+        cin >> flag;
+    }
+
+    FreeLibrary(load);
+    return 0;
+}
