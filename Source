@@ -1,0 +1,165 @@
+#include "Header.h"
+#include <iostream>
+#include <fstream>
+#include <windows.h>
+
+using namespace std;
+
+extern "C" __declspec(dllexport) bool checkup(string str, set<char>&alf) {
+    for (char sym : str) {
+        if (alf.count(sym)) {
+            continue;
+        }
+        else {
+            return true;
+        }
+    }
+    return false;
+}
+
+extern "C" __declspec(dllexport) string addsymbols(string & str) {
+    if (str[0] != ' ') {
+        str = ' ' + str;
+    }
+    if (str.back() != ' ') {
+        str = str + ' ';
+    }
+    return str;
+}
+
+extern "C" __declspec(dllexport) bool init(vector<Transition>&table) {
+    vector<char> alfavit = { '0', '1', '2', '3', '4', '5', '6', '7', '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', ' ' };
+    ifstream inputFile("ИЗ_КТбо1-6_Миронов_11.2.txt");
+    if (!inputFile) {
+        cerr << "Невозможно открыть файл" << endl;
+        return true;
+    }
+    else {
+        int cntForQ = 0, space = 0, cntForVector = 0, cntForAlfavit = 0, flagForThree = 0, flagForQ = 0, cntForVectorMinusOne = 0;
+        char ch;
+        while (inputFile.get(ch)) {
+            cntForVectorMinusOne = cntForVector;
+            cntForVectorMinusOne--;
+            if ((space == 0) && (cntForVectorMinusOne != -1) && (table[cntForVector].toCondition).length() == 2 && (ch < 48 || ch > 57)) {
+                flagForQ = 0;
+                flagForThree = 0;
+                space = 0;
+                cntForVector++;
+                cntForAlfavit++;
+            }
+            else if (space && (ch < 48 || ch > 578)) {
+                space = 0;
+                continue;
+            }
+            else {
+                if (cntForVector != 0 && cntForVector % 18 == 0 && flagForThree == 0) {
+                    cntForQ++;
+                    cntForAlfavit = 0;
+                }
+                if (ch == 'N') {
+                    table[cntForVector].nowSym = alfavit[cntForAlfavit];
+                    table[cntForVector].nowCondition = "q" + to_string(cntForQ);
+                    cntForAlfavit++;
+                    space = 1;
+                    cntForVector++;
+                }
+                else {
+                    if (ch >= 48 && ch <= 57 && flagForQ) {
+                        table[cntForVector].toCondition += ch;
+                        if ((table[cntForVector].toCondition).length() == 3) {
+                            flagForQ = 0;
+                            flagForThree = 0;
+                            cntForVector++;
+                            cntForAlfavit++;
+                            space = 1;
+                        }
+                    }
+                    else if (ch != '<' && ch != '>' && ch != 'q') {
+                        flagForThree = 1;
+                        table[cntForVector].toSym = ch;
+                        table[cntForVector].nowCondition = "q" + to_string(cntForQ);
+                        table[cntForVector].nowSym = alfavit[cntForAlfavit];
+                        space = 1;
+                    }
+                    else if (ch == '<' || ch == '>') {
+                        table[cntForVector].direction = ch;
+                        table[cntForVector].nowCondition = "q" + to_string(cntForQ);
+                        table[cntForVector].nowSym = alfavit[cntForAlfavit];
+                        space = 1;
+                        if (!flagForThree) {
+                            cntForAlfavit++;
+                            cntForVector++;
+                        }
+                    }
+                    else if (ch == 'q') {
+                        flagForQ = 1;
+                        table[cntForVector].toCondition = "q";
+                    }
+                }
+            }
+        }
+        return false;
+    }
+}
+
+extern "C" __declspec(dllexport) void turing(string & str, vector <Transition>&table) {
+    string nowCondition = "q1";
+    cout << str[0];
+    setColor(4);
+    cout << str[1];
+    setColor(7);
+    for (auto it = str.begin() + 2; it != str.end(); it++) {
+        cout << *it;
+    }
+    cout << ' ' << nowCondition << endl;
+    int indexForNowSym = 1;
+    while (nowCondition != "q0") {
+        addsymbols(str);
+        auto it = find_if(table.begin(), table.end(), [nowCondition, &str, indexForNowSym](const Transition& t) {
+            return t.nowCondition == nowCondition && t.nowSym == str[indexForNowSym];
+            });
+        if ((*it).toCondition[0] == 'q') {
+            str[indexForNowSym] = (*it).toSym;
+            nowCondition = (*it).toCondition;
+            if ((*it).direction == '>') {
+                indexForNowSym++;
+            }
+            else {
+                indexForNowSym--;
+            }
+        }
+        else if (((*it).direction == '>' or (*it).direction == '<') and ((*it).toSym == 'N')) {
+            if ((*it).direction == '>') {
+                indexForNowSym++;
+            }
+            else {
+                indexForNowSym--;
+            }
+        }
+        if (indexForNowSym == 0) {
+            setColor(4);
+            cout << str[indexForNowSym];
+            setColor(7);
+            for (int i = 1; i < str.length(); i++) {
+                cout << str[i];
+            }
+        }
+        else {
+            for (int i = 0; i < indexForNowSym; i++) {
+                cout << str[i];
+            }
+            setColor(4);
+            cout << str[indexForNowSym];
+            setColor(7);
+            for (int i = indexForNowSym + 1; i < str.length(); i++) {
+                cout << str[i];
+            }
+        }
+        cout << ' ' << nowCondition << endl;
+    }
+}
+
+extern "C" __declspec(dllexport) void setColor(int color) {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, color);
+}
