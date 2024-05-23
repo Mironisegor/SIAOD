@@ -9,14 +9,24 @@
 
 using namespace std;
 
+/**
+ * @brief Основная функция программы.
+ *
+ * Загружает динамическую библиотеку, инициализирует таблицу переходов,
+ * запрашивает ввод числа у пользователя и выполняет алгоритм Тьюринга.
+ *
+ * @return int Код завершения программы.
+ */
 int main() {
-    HINSTANCE load;
+    HINSTANCE load; ///< Хэндл для загруженной библиотеки.
     setlocale(LC_ALL, "Russian");
-    int flag = 1;
-    vector<Transition> table(522);
+    vector<Transition> table(522); ///< Таблица переходов для машины Тьюринга.
 
-    load = LoadLibrary(L"DinamicLib.dll");
+    load = LoadLibrary(L"DinamicLib.dll"); ///< Загрузка библиотеки.
 
+    /**
+     * @brief Инициализация указателей на функции из библиотеки.
+     */
     bool(*init)(vector<Transition>&);
     init = (bool(*)(vector<Transition>&))GetProcAddress(load, "init");
 
@@ -26,31 +36,55 @@ int main() {
     void(*turing)(string&, vector<Transition>&);
     turing = (void(*)(string&, vector<Transition>&))GetProcAddress(load, "turing");
 
-    set<char> alf = { '0', '1', '2', '3', '4', '5', '6', '7', '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', ' ' };
     bool(*checkup)(string, set<char>&);
     checkup = (bool(*)(string, set<char>&))GetProcAddress(load, "checkup");
 
     void(*setColor)(int);
     setColor = (void(*)(int))GetProcAddress(load, "setColor");
 
-    while (flag) {
-        string str;
-        cout << "Введите строку: ";
-        cin >> str;
-        bool stop = checkup(str, alf);
-        if (!stop) {
-            str = addsymbols(str);
-            if (!init(table)) {
-                turing(str, table);
+    set<char> alf = { '0', '1', '2', '3', '4', '5', '6', '7', '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', ' ' }; ///< Входной алфавит.
+
+    /**
+     * @brief Проверка инициализации таблицы переходов.
+     * Если инициализация не удалась, программа завершится.
+     */
+    if (init(table)) {
+        return 0;
+    }
+    else {
+        /**
+         * @brief Основной цикл программы для ввода числа и выполнения алгоритма Тьюринга.
+         */
+        int flag = 1; ///< Флаг для продолжения работы программы.
+        do {
+            string str; ///< Переменная для хранения входнйо строки.
+            cout << "Введите число: ";
+            cin >> str;
+            /**
+            * @brief Проверка числа на наличие символов не из алфавита.
+            */
+            if (checkup(str, alf)) {
+                cout << "Некоректный ввод! Число должно состоять только из цифр от 0 до 7 включительно" << endl;
+                cout << "Введите 1, если хотите попробовать снова, иначе 0: ";
+                cin >> flag;
+                if (!flag) {
+                    break;
+                }
             }
-        }
-        else {
-            cout << "Недопустимые символы в строке. Повторите ввод." << endl;
-        }
-        cout << "Повторить ввод строки? (0 - нет, 1 - да): ";
-        cin >> flag;
+            else {
+                str = addsymbols(str);
+                turing(str, table);
+                cout << "Хотите ввести число еще раз? (1 - да, 0 - нет): ";
+                int flag1;
+                cin >> flag1;
+                if (!flag1) {
+                    break;
+                }
+            }
+        } while (true);
     }
 
-    FreeLibrary(load);
+    FreeLibrary(load); ///< Освобождение загруженной библиотеки.
+
     return 0;
 }
