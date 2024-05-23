@@ -48,7 +48,7 @@ extern "C" __declspec(dllexport) string addsymbols(string & str) {
  * @return true Если файл не удалось открыть.
  * @return false Если инициализация прошла успешно.
  */
-extern "C" __declspec(dllexport) bool init(vector<Transition>&table) {
+extern "C" __declspec(dllexport) bool init(deque<Transition>&table) {
     vector<char> alfavit = { '0', '1', '2', '3', '4', '5', '6', '7', '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', ' ' };
     ifstream inputFile("ИЗ_КТбо1-6_Миронов_11.2.txt");
     if (!inputFile) {
@@ -57,64 +57,55 @@ extern "C" __declspec(dllexport) bool init(vector<Transition>&table) {
         return true;
     }
     else {
-        int cntForQ = 0, space = 0, cntForVector = 0, cntForAlfavit = 0, flagForThree = 0, flagForQ = 0, cntForVectorMinusOne = 0;
-        char ch;
-        while (inputFile.get(ch)) {
-            cntForVectorMinusOne = cntForVector - 1;
-            if ((space == 0) && (cntForVectorMinusOne != -1) && (table[cntForVector].toCondition).length() == 2 && (ch < 48 || ch > 57)) {
-                flagForQ = 0;
-                flagForThree = 0;
-                space = 0;
-                cntForVector++;
-                cntForAlfavit++;
-            }
-            else if (space && (ch < 48 || ch > 57)) {
-                space = 0;
-                continue;
-            }
-            else {
-                if (cntForVector != 0 && cntForVector % 18 == 0 && flagForThree == 0) {
-                    cntForQ++;
-                    cntForAlfavit = 0;
-                }
-                if (ch == 'N') {
-                    table[cntForVector].nowSym = alfavit[cntForAlfavit];
-                    table[cntForVector].nowCondition = "q" + to_string(cntForQ);
+        vector<char> alfavit = { '0', '1', '2', '3', '4', '5', '6', '7', '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', ' ' };
+        for (int i = 0; i < 30; i++) {
+            int cntForAlfavit = 0, flagForSpace = 0, flagForBreak = 0;;
+            string inputStr;
+            Transition instance, temp;
+            getline(inputFile,inputStr);
+            int lenForInputStr = inputStr.length();
+            for (int j = 0; j < lenForInputStr; j++) {
+                if (inputStr[j] == 'N') {
                     cntForAlfavit++;
-                    space = 1;
-                    cntForVector++;
+                    flagForSpace = 1;
+                    continue;
                 }
-                else {
-                    if (ch >= 48 && ch <= 57 && flagForQ) {
-                        table[cntForVector].toCondition += ch;
-                        if ((table[cntForVector].toCondition).length() == 3) {
-                            flagForQ = 0;
-                            flagForThree = 0;
-                            cntForVector++;
-                            cntForAlfavit++;
-                            space = 1;
+                else if (flagForSpace) {
+                    flagForSpace = 0;
+                    continue;
+                }
+                else if ((inputStr[j] == '<' or inputStr[j] == '>') and inputStr[j+2] != 'q') {
+                    instance.nowCondition = 'q' + to_string(i);
+                    instance.direction = inputStr[j];
+                    instance.nowSym = alfavit[cntForAlfavit];
+                    table.push_back(instance);
+                    instance = temp;
+                    cntForAlfavit++;
+                    flagForSpace = 1;
+                }
+                else if (inputStr[j] != '<' and inputStr[j] != '>' and inputStr[j + 4] == 'q') {
+                    instance.nowSym = alfavit[cntForAlfavit];
+                    instance.toSym = inputStr[j];
+                    instance.direction = inputStr[j + 2];
+                    instance.nowCondition = 'q' + to_string(i);
+                    if ((j+6) <= (lenForInputStr-1) and isdigit(inputStr[j + 6])) {
+                        instance.toCondition = "q" + to_string(inputStr[j + 5] - '0') + to_string(inputStr[j + 6] - '0');
+                        if ((j + 6) == lenForInputStr-1) {
+                            flagForBreak = 1;
                         }
                     }
-                    else if (ch != '<' && ch != '>' && ch != 'q') {
-                        flagForThree = 1;
-                        table[cntForVector].toSym = ch;
-                        table[cntForVector].nowCondition = "q" + to_string(cntForQ);
-                        table[cntForVector].nowSym = alfavit[cntForAlfavit];
-                        space = 1;
-                    }
-                    else if (ch == '<' || ch == '>') {
-                        table[cntForVector].direction = ch;
-                        table[cntForVector].nowCondition = "q" + to_string(cntForQ);
-                        table[cntForVector].nowSym = alfavit[cntForAlfavit];
-                        space = 1;
-                        if (!flagForThree) {
-                            cntForAlfavit++;
-                            cntForVector++;
+                    else {
+                        instance.toCondition = "q" + to_string(inputStr[j + 5] - '0');
+                        if ((j + 5) == lenForInputStr-1) {
+                            flagForBreak = 1;
                         }
                     }
-                    else if (ch == 'q') {
-                        flagForQ = 1;
-                        table[cntForVector].toCondition = "q";
+                    table.push_back(instance);
+                    instance = temp;
+                    cntForAlfavit++;
+                    flagForSpace = 1;
+                    if (flagForBreak) {
+                        break;
                     }
                 }
             }
@@ -129,7 +120,7 @@ extern "C" __declspec(dllexport) bool init(vector<Transition>&table) {
  * @param str Ссылка на входную строку.
  * @param table Ссылка на таблицу переходов.
  */
-extern "C" __declspec(dllexport) void turing(string & str, vector<Transition>&table) {
+extern "C" __declspec(dllexport) void turing(string & str, deque<Transition>&table) {
     int cnt = 0;
     string nowCondition = "q1";
     cout << str[0];
