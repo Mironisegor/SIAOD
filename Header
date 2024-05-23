@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <deque>
 
 using namespace std;
 
@@ -44,7 +45,7 @@ extern "C" __declspec(dllexport) string addsymbols(string & str);
  * @return true Если файл не удалось открыть.
  * @return false Если инициализация прошла успешно.
  */
-extern "C" __declspec(dllexport) bool init(vector<Transition>&table);
+extern "C" __declspec(dllexport) bool init(deque<Transition>&table);
 
 /**
  * @brief Выполняет алгоритм машины Тьюринга на входной строке.
@@ -52,7 +53,7 @@ extern "C" __declspec(dllexport) bool init(vector<Transition>&table);
  * @param str Ссылка на входную строку.
  * @param table Ссылка на таблицу переходов.
  */
-extern "C" __declspec(dllexport) void turing(string & str, vector<Transition>&table);
+extern "C" __declspec(dllexport) void turing(string & str, deque<Transition>&table);
 
 /**
  * @brief Устанавливает цвет текста в консоли.
