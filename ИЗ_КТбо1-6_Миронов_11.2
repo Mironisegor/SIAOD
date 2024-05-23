@@ -5,6 +5,7 @@
 #include <set>
 #include <fstream>
 #include <windows.h>
+#include <deque>
 #include "..\DinamicLib\Header.h"
 
 using namespace std;
@@ -20,21 +21,21 @@ using namespace std;
 int main() {
     HINSTANCE load; ///< Хэндл для загруженной библиотеки.
     setlocale(LC_ALL, "Russian");
-    vector<Transition> table(522); ///< Таблица переходов для машины Тьюринга.
+    deque <Transition> table; ///< Таблица переходов для машины Тьюринга.
 
     load = LoadLibrary(L"DinamicLib.dll"); ///< Загрузка библиотеки.
 
     /**
      * @brief Инициализация указателей на функции из библиотеки.
      */
-    bool(*init)(vector<Transition>&);
-    init = (bool(*)(vector<Transition>&))GetProcAddress(load, "init");
+    bool(*init)(deque<Transition>&);
+    init = (bool(*)(deque<Transition>&))GetProcAddress(load, "init");
 
     string(*addsymbols)(string&);
     addsymbols = (string(*)(string&))GetProcAddress(load, "addsymbols");
 
-    void(*turing)(string&, vector<Transition>&);
-    turing = (void(*)(string&, vector<Transition>&))GetProcAddress(load, "turing");
+    void(*turing)(string&, deque<Transition>&);
+    turing = (void(*)(string&, deque<Transition>&))GetProcAddress(load, "turing");
 
     bool(*checkup)(string, set<char>&);
     checkup = (bool(*)(string, set<char>&))GetProcAddress(load, "checkup");
@@ -88,3 +89,4 @@ int main() {
 
     return 0;
 }
+
