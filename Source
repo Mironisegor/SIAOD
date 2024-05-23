@@ -5,6 +5,14 @@
 
 using namespace std;
 
+/**
+ * @brief Проверяет входную строку на соответствие допустимому алфавиту.
+ *
+ * @param str Входная строка.
+ * @param alf Допустимый алфавит.
+ * @return true Если в строке есть символы, не входящие в алфавит.
+ * @return false Если все символы строки принадлежат алфавиту.
+ */
 extern "C" __declspec(dllexport) bool checkup(string str, set<char>&alf) {
     for (char sym : str) {
         if (alf.count(sym)) {
@@ -17,6 +25,12 @@ extern "C" __declspec(dllexport) bool checkup(string str, set<char>&alf) {
     return false;
 }
 
+/**
+ * @brief Добавляет пробелы в начале и в конце строки, если их нет.
+ *
+ * @param str Ссылка на входную строку.
+ * @return string Измененная строка.
+ */
 extern "C" __declspec(dllexport) string addsymbols(string & str) {
     if (str[0] != ' ') {
         str = ' ' + str;
@@ -27,19 +41,26 @@ extern "C" __declspec(dllexport) string addsymbols(string & str) {
     return str;
 }
 
+/**
+ * @brief Инициализирует таблицу переходов для машины Тьюринга.
+ *
+ * @param table Ссылка на таблицу переходов.
+ * @return true Если файл не удалось открыть.
+ * @return false Если инициализация прошла успешно.
+ */
 extern "C" __declspec(dllexport) bool init(vector<Transition>&table) {
     vector<char> alfavit = { '0', '1', '2', '3', '4', '5', '6', '7', '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', ' ' };
     ifstream inputFile("ИЗ_КТбо1-6_Миронов_11.2.txt");
     if (!inputFile) {
-        cerr << "Невозможно открыть файл" << endl;
+        cerr << "Файл не удалось открыть!" << endl;
+        cerr << "Проверьте имя и расширение файла, после запустите программу заново";
         return true;
     }
     else {
         int cntForQ = 0, space = 0, cntForVector = 0, cntForAlfavit = 0, flagForThree = 0, flagForQ = 0, cntForVectorMinusOne = 0;
         char ch;
         while (inputFile.get(ch)) {
-            cntForVectorMinusOne = cntForVector;
-            cntForVectorMinusOne--;
+            cntForVectorMinusOne = cntForVector - 1;
             if ((space == 0) && (cntForVectorMinusOne != -1) && (table[cntForVector].toCondition).length() == 2 && (ch < 48 || ch > 57)) {
                 flagForQ = 0;
                 flagForThree = 0;
@@ -47,7 +68,7 @@ extern "C" __declspec(dllexport) bool init(vector<Transition>&table) {
                 cntForVector++;
                 cntForAlfavit++;
             }
-            else if (space && (ch < 48 || ch > 578)) {
+            else if (space && (ch < 48 || ch > 57)) {
                 space = 0;
                 continue;
             }
@@ -102,7 +123,14 @@ extern "C" __declspec(dllexport) bool init(vector<Transition>&table) {
     }
 }
 
-extern "C" __declspec(dllexport) void turing(string & str, vector <Transition>&table) {
+/**
+ * @brief Выполняет алгоритм машины Тьюринга на входной строке.
+ *
+ * @param str Ссылка на входную строку.
+ * @param table Ссылка на таблицу переходов.
+ */
+extern "C" __declspec(dllexport) void turing(string & str, vector<Transition>&table) {
+    int cnt = 0;
     string nowCondition = "q1";
     cout << str[0];
     setColor(4);
@@ -128,7 +156,7 @@ extern "C" __declspec(dllexport) void turing(string & str, vector <Transition>&t
                 indexForNowSym--;
             }
         }
-        else if (((*it).direction == '>' or (*it).direction == '<') and ((*it).toSym == 'N')) {
+        else if (((*it).direction == '>' || (*it).direction == '<') && ((*it).toSym == 'N')) {
             if ((*it).direction == '>') {
                 indexForNowSym++;
             }
@@ -140,25 +168,36 @@ extern "C" __declspec(dllexport) void turing(string & str, vector <Transition>&t
             setColor(4);
             cout << str[indexForNowSym];
             setColor(7);
-            for (int i = 1; i < str.length(); i++) {
+            for (size_t i = 1; i < str.length(); i++) {
                 cout << str[i];
             }
         }
         else {
-            for (int i = 0; i < indexForNowSym; i++) {
+            for (size_t i = 0; i < indexForNowSym; i++) {
                 cout << str[i];
             }
             setColor(4);
             cout << str[indexForNowSym];
             setColor(7);
-            for (int i = indexForNowSym + 1; i < str.length(); i++) {
+            for (size_t i = indexForNowSym + 1; i < str.length(); i++) {
                 cout << str[i];
             }
         }
         cout << ' ' << nowCondition << endl;
+        cnt++;
+        if (cnt == 10000) {
+            cout << "Превышено максимальное количество шагов машины Тьюринга (10000)" << endl;
+            nowCondition = "q0";
+        }
     }
+    cout << "Машина Тьюринга закончила свое выполнение" << endl;
 }
 
+/**
+ * @brief Устанавливает цвет текста в консоли.
+ *
+ * @param color Код цвета.
+ */
 extern "C" __declspec(dllexport) void setColor(int color) {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hConsole, color);
