@@ -172,20 +172,27 @@ extern "C" __declspec(dllexport) auto findCommand(Transition & table) {
         }
     }
 }
-
-/**
- * \fn void print(Transition&table)
- * \brief Выводит конфигурацию на экран
- *
- * \param table Ссылка на структуру Transition.
- */
 extern "C" __declspec(dllexport) void print(Transition&table) {
-    setColor(4);
-    cout << table.lenta[table.indexForNowSym];
-    setColor(7);
-    for (size_t i = 1; i < table.lenta.length(); i++) {
-        cout << table.lenta[i];
+    if (table.indexForNowSym == 0) {
+        setColor(4);
+        cout << table.lenta[table.indexForNowSym];
+        setColor(7);
+        for (size_t i = 1; i < table.lenta.length(); i++) {
+            cout << table.lenta[i];
+        }
     }
+    else {
+        for (size_t i = 0; i < table.indexForNowSym; i++) {
+            cout << table.lenta[i];
+        }
+        setColor(4);
+        cout << table.lenta[table.indexForNowSym];
+        setColor(7);
+        for (size_t i = table.indexForNowSym + 1; i < table.lenta.length(); i++) {
+            cout << table.lenta[i];
+        }
+    }
+    cout << ' ' << table.nowCondition << endl;
 }
 
 /**
@@ -210,13 +217,7 @@ extern "C" __declspec(dllexport) string oneStep(Transition & table) {
     else if ((secondElemInTuple == '>' || secondElemInTuple == '<') && firstElemInTuple == ' ') {
         move(secondElemInTuple, table);
     }
-    if (table.indexForNowSym == 0) {
-        print(table);
-    }
-    else {
-        print(table);
-    }
-    cout << ' ' << table.nowCondition << endl;
+    print(table);
     return table.nowCondition;
 }
 
