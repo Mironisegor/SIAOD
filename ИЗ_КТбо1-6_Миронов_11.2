@@ -1,3 +1,12 @@
+/**
+* \file ИЗ_КТбо1-6_Миронов_11.2.cpp
+* \brief Основной код программы.
+* \details
+* \author Миронов Е.С, КТбо1-6
+* \date 26.05.2024
+*/
+
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -5,8 +14,8 @@
 #include <set>
 #include <fstream>
 #include <windows.h>
-#include <deque>
-#include "..\DinamicLib\Header.h"
+#include "Header.h"
+#include <tuple>
 
 using namespace std;
 
@@ -21,30 +30,17 @@ using namespace std;
 int main() {
     HINSTANCE load; ///< Хэндл для загруженной библиотеки.
     setlocale(LC_ALL, "Russian");
-    deque <Transition> table; ///< Таблица переходов для машины Тьюринга.
+    Transition table; ///< Таблица переходов для машины Тьюринга.
 
     load = LoadLibrary(L"DinamicLib.dll"); ///< Загрузка библиотеки.
 
-    /**
-     * @brief Инициализация указателей на функции из библиотеки.
-     */
-    bool(*init)(deque<Transition>&);
-    init = (bool(*)(deque<Transition>&))GetProcAddress(load, "init");
-
-    string(*addsymbols)(string&);
-    addsymbols = (string(*)(string&))GetProcAddress(load, "addsymbols");
-
-    void(*turing)(string&, deque<Transition>&);
-    turing = (void(*)(string&, deque<Transition>&))GetProcAddress(load, "turing");
-
-    bool(*checkup)(string, set<char>&);
-    checkup = (bool(*)(string, set<char>&))GetProcAddress(load, "checkup");
-
-    void(*setColor)(int);
-    setColor = (void(*)(int))GetProcAddress(load, "setColor");
-
     set<char> alf = { '0', '1', '2', '3', '4', '5', '6', '7', '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', ' ' }; ///< Входной алфавит.
 
+    /**
+     * @brief Инициализация указателей на функцию из библиотеки.
+     */
+    bool(*init)(Transition&);
+    init = (bool(*)(Transition&))GetProcAddress(load, "init");
     /**
      * @brief Проверка инициализации таблицы переходов.
      * Если инициализация не удалась, программа завершится.
@@ -61,6 +57,13 @@ int main() {
             string str; ///< Переменная для хранения входнйо строки.
             cout << "Введите число: ";
             cin >> str;
+
+            /**
+            * @brief Проверка инициализации таблицы переходов.
+            * Если инициализация не удалась, программа завершится.
+            */
+            bool(*checkup)(string, set<char>&);
+            checkup = (bool(*)(string, set<char>&))GetProcAddress(load, "checkup");
             /**
             * @brief Проверка числа на наличие символов не из алфавита.
             */
@@ -73,7 +76,19 @@ int main() {
                 }
             }
             else {
+                /**
+                * @brief Проверка инициализации таблицы переходов.
+                * Если инициализация не удалась, программа завершится.
+                */
+                string(*addsymbols)(string&);
+                addsymbols = (string(*)(string&))GetProcAddress(load, "addsymbols");
                 str = addsymbols(str);
+                /**
+                * @brief Проверка инициализации таблицы переходов.
+                * Если инициализация не удалась, программа завершится.
+                */
+                void(*turing)(string&, Transition&);
+                turing = (void(*)(string&, Transition&))GetProcAddress(load, "turing");
                 turing(str, table);
                 cout << "Хотите ввести число еще раз? (1 - да, 0 - нет): ";
                 int flag1;
