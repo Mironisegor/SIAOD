@@ -50,19 +50,18 @@ extern "C" __declspec(dllexport) string addsymbols(string & str) {
  */
 extern "C" __declspec(dllexport) bool init(deque<Transition>&table) {
     vector<char> alfavit = { '0', '1', '2', '3', '4', '5', '6', '7', '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', ' ' };
-    ifstream inputFile("ИЗ_КТбо1-6_Миронов_11.2.txt");
+    ifstream inputFile("TXT_FILE_FOR_PIOTA.txt");
     if (!inputFile) {
         cerr << "Файл не удалось открыть!" << endl;
         cerr << "Проверьте имя и расширение файла, после запустите программу заново";
         return true;
     }
     else {
-        vector<char> alfavit = { '0', '1', '2', '3', '4', '5', '6', '7', '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', ' ' };
-        for (int i = 0; i < 30; i++) {
+        for (int i = 1; i < 31; i++) {
             int cntForAlfavit = 0, flagForSpace = 0, flagForBreak = 0;;
             string inputStr;
             Transition instance, temp;
-            getline(inputFile,inputStr);
+            getline(inputFile, inputStr);
             int lenForInputStr = inputStr.length();
             for (int j = 0; j < lenForInputStr; j++) {
                 if (inputStr[j] == 'N') {
@@ -74,7 +73,7 @@ extern "C" __declspec(dllexport) bool init(deque<Transition>&table) {
                     flagForSpace = 0;
                     continue;
                 }
-                else if ((inputStr[j] == '<' or inputStr[j] == '>') and inputStr[j+2] != 'q') {
+                else if ((inputStr[j] == '<' or inputStr[j] == '>') and inputStr[j + 2] != 'q') {
                     instance.nowCondition = 'q' + to_string(i);
                     instance.direction = inputStr[j];
                     instance.nowSym = alfavit[cntForAlfavit];
@@ -88,15 +87,15 @@ extern "C" __declspec(dllexport) bool init(deque<Transition>&table) {
                     instance.toSym = inputStr[j];
                     instance.direction = inputStr[j + 2];
                     instance.nowCondition = 'q' + to_string(i);
-                    if ((j+6) <= (lenForInputStr-1) and isdigit(inputStr[j + 6])) {
+                    if ((j + 6) <= (lenForInputStr - 1) and isdigit(inputStr[j + 6])) {
                         instance.toCondition = "q" + to_string(inputStr[j + 5] - '0') + to_string(inputStr[j + 6] - '0');
-                        if ((j + 6) == lenForInputStr-1) {
+                        if ((j + 6) == lenForInputStr - 1) {
                             flagForBreak = 1;
                         }
                     }
                     else {
                         instance.toCondition = "q" + to_string(inputStr[j + 5] - '0');
-                        if ((j + 5) == lenForInputStr-1) {
+                        if ((j + 5) == lenForInputStr - 1) {
                             flagForBreak = 1;
                         }
                     }
@@ -114,74 +113,82 @@ extern "C" __declspec(dllexport) bool init(deque<Transition>&table) {
     }
 }
 
+
 /**
  * @brief Выполняет алгоритм машины Тьюринга на входной строке.
  *
  * @param str Ссылка на входную строку.
  * @param table Ссылка на таблицу переходов.
  */
-extern "C" __declspec(dllexport) void turing(string & str, deque<Transition>&table) {
+extern "C" __declspec(dllexport) void turing(string & str, deque<Transition> & table) {
+    Lenta lenta;
     int cnt = 0;
-    string nowCondition = "q1";
-    cout << str[0];
+    lenta.nowCondition = "q1";
+    lenta.lenta = str;
+    cout << lenta.lenta[0];
     setColor(4);
     cout << str[1];
     setColor(7);
-    for (auto it = str.begin() + 2; it != str.end(); it++) {
+    for (auto it = lenta.lenta.begin() + 2; it != lenta.lenta.end(); it++) {
         cout << *it;
     }
-    cout << ' ' << nowCondition << endl;
-    int indexForNowSym = 1;
-    while (nowCondition != "q0") {
-        addsymbols(str);
-        auto it = find_if(table.begin(), table.end(), [nowCondition, &str, indexForNowSym](const Transition& t) {
-            return t.nowCondition == nowCondition && t.nowSym == str[indexForNowSym];
-            });
-        if ((*it).toCondition[0] == 'q') {
-            str[indexForNowSym] = (*it).toSym;
-            nowCondition = (*it).toCondition;
-            if ((*it).direction == '>') {
-                indexForNowSym++;
-            }
-            else {
-                indexForNowSym--;
-            }
-        }
-        else if (((*it).direction == '>' || (*it).direction == '<') && ((*it).toSym == 'N')) {
-            if ((*it).direction == '>') {
-                indexForNowSym++;
-            }
-            else {
-                indexForNowSym--;
-            }
-        }
-        if (indexForNowSym == 0) {
-            setColor(4);
-            cout << str[indexForNowSym];
-            setColor(7);
-            for (size_t i = 1; i < str.length(); i++) {
-                cout << str[i];
-            }
-        }
-        else {
-            for (size_t i = 0; i < indexForNowSym; i++) {
-                cout << str[i];
-            }
-            setColor(4);
-            cout << str[indexForNowSym];
-            setColor(7);
-            for (size_t i = indexForNowSym + 1; i < str.length(); i++) {
-                cout << str[i];
-            }
-        }
-        cout << ' ' << nowCondition << endl;
+    cout << ' ' << lenta.nowCondition << endl;
+    lenta.indexForNowSym = 1;
+    while (lenta.nowCondition != "q0") {
+        lenta.nowCondition = oneStep(lenta, table);
         cnt++;
         if (cnt == 10000) {
             cout << "Превышено максимальное количество шагов машины Тьюринга (10000)" << endl;
-            nowCondition = "q0";
+            lenta.nowCondition = "q0";
         }
     }
     cout << "Машина Тьюринга закончила свое выполнение" << endl;
+}
+
+string oneStep(Lenta& lenta, deque <Transition>&table) {
+    addsymbols(lenta.lenta);
+    auto it = find_if(table.begin(), table.end(), [&lenta](const Transition& t) {
+        return t.nowCondition == lenta.nowCondition && t.nowSym == lenta.lenta[lenta.indexForNowSym];
+        });
+
+    if ((*it).toCondition[0] == 'q') {
+        lenta.lenta[lenta.indexForNowSym] = (*it).toSym;
+        lenta.nowCondition = (*it).toCondition;
+        move(it, lenta);
+    }
+    else if (((*it).direction == '>' || (*it).direction == '<') && ((*it).toSym == 'N')) {
+        move(it, lenta);
+    }
+    if (lenta.indexForNowSym == 0) {
+        setColor(4);
+        cout << lenta.lenta[lenta.indexForNowSym];
+        setColor(7);
+        for (size_t i = 1; i < lenta.lenta.length(); i++) {
+            cout << lenta.lenta[i];
+        }
+    }
+    else {
+        for (size_t i = 0; i < lenta.indexForNowSym; i++) {
+            cout << lenta.lenta[i];
+        }
+        setColor(4);
+        cout << lenta.lenta[lenta.indexForNowSym];
+        setColor(7);
+        for (size_t i = lenta.indexForNowSym + 1; i < lenta.lenta.length(); i++) {
+            cout << lenta.lenta[i];
+        }
+    }
+    cout << ' ' << lenta.nowCondition << endl;
+    return lenta.nowCondition;
+}
+
+void move(const deque<Transition>::iterator& it, Lenta& lenta) {
+    if ((*it).direction == '>') {
+        lenta.indexForNowSym++;
+    }
+    else {
+        lenta.indexForNowSym--;
+    }
 }
 
 /**
