@@ -10,6 +10,15 @@
 using namespace std;
 
 /**
+ * @brief Структура для хранения головки и ленты машины Тьюринга, нынешнего состояния
+ */
+typedef struct Lenta {
+    string lenta; ///< Летна машины Тьюринга
+    string nowCondition ; ///< Текущее состояние
+    int indexForNowSym; ///< Положение головки
+}Lenta;
+
+/**
  * @brief Структура для представления переходов машины Тьюринга.
  */
 typedef struct Transition {
@@ -53,7 +62,24 @@ extern "C" __declspec(dllexport) bool init(deque<Transition>&table);
  * @param str Ссылка на входную строку.
  * @param table Ссылка на таблицу переходов.
  */
-extern "C" __declspec(dllexport) void turing(string & str, deque<Transition>&table);
+extern "C" __declspec(dllexport) void turing(string & str, deque<Transition> &table);
+
+
+/**
+ * @brief Выполняет один шаг машины Тьюринга
+ *
+ * @param lenta Ссылка на структуру Lenta.
+ * @param table Ссылка на таблицу переходов.
+ */
+extern "C" __declspec(dllexport) string oneStep(Lenta & lenta, deque <Transition>&table);
+
+/**
+ * @brief Перемешает головку машины Тьюринга
+ *
+ * @param it Ссылка на таблицу переходов.
+ * @param lenta Ссылка на итератор найденного перехода .
+ */
+extern "C" __declspec(dllexport) void move(const deque<Transition>::iterator& it, Lenta& lenta);
 
 /**
  * @brief Устанавливает цвет текста в консоли.
