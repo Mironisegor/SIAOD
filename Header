@@ -69,6 +69,13 @@ extern "C" __declspec(dllexport) bool init(Transition & table);
  */
 extern "C" __declspec(dllexport) void turing(string & str, Transition & table);
 
+/**
+ * \fn void print(Transition&table)
+ * \brief Выводит конфигурацию на экран
+ *
+ * \param table Ссылка на структуру Transition.
+ */
+extern "C" __declspec(dllexport) void print(Transition & table);
 
 /**
  * \fn string oneStep(Transition & table)
